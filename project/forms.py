@@ -11,7 +11,7 @@ class AddTaskForm(Form):
         "Date Due (mm/dd/yyyy)",
         validators=[DataRequired()], format="%m/%d/%Y"
     )
-    pririty = SelectField(
+    priority = SelectField(
         "Priority",
         validators=[DataRequired()],
         choices=[
