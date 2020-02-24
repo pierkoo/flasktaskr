@@ -4,22 +4,26 @@
 <h1> Welcome to FlaskTaskr. </h1>
 <h3>Please login to access your task list.</h3>
 
-<form axtion="/" method="post">
-	<div class="input-group">
-		<label for="name"> Username: </label>
-		<input type="text" id="username" name="username" value="{{
-			request.form.username }}">
-	</div>
-	<div class="input-group">
-		<label for="mail">Password:</label>
-		<input type="password" id="password" name="password" value="{{
-		request.form.password }}"/>
+<form action="/" method="post">
+	{{ form.csrf_token }}
+
+	<div>
+		{{ form.name.label }}
+		{{ form.name }}
 	</div>
 	<div>
-		<button type="submit"> Login </button>
+		{{ form.password.label }}
+		{{ form.password }}
+	</div>
+
+	<div>
+		<input type="submit" value="Submit">
 	</div>
 </form>
 
-<p><em> Use 'admin' for the username and password. </em></p>
+<br>
+<div class="">
+<em> Need an account? </em><a href="/register">Signup!</a>
+</div>
 
 {% endblock %}
