@@ -41,6 +41,9 @@ class AllTest(unittest.TestCase):
             ), follow_redirects=True)
 
 
+
+
+
     ############################
     #### setup and teardown ####
     ############################
@@ -158,14 +161,14 @@ class AllTest(unittest.TestCase):
         self.assertIn(b"Task was marked as complete.", response.data)
 
     def test_users_cannot_complete_tasks_that_are_not_created_by_them(self):
-        self.create_user("Michael", 'mmm@mm.com', "python", "python")
-        self.log_in("Michael", "python")
+        self.register("Michael", 'mmm@mm.com', "python", "python")
+        self.login("Michael", "python")
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
         self.logout()
 
-        self.create_user("Romano", 'mmm@mm.com', "python", "python")
-        self.log_in("Romano", "python")
+        self.register("Romano", 'rrr@mm.com', "python", "python")
+        self.login("Romano", "python")
         self.app.get('tasks/', follow_redirects=True)
         response = self.app.get("complete/1/", follow_redirects=True)
         self.assertNotIn(b"Task was marked as complete.", response.data)
