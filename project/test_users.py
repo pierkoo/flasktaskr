@@ -69,7 +69,7 @@ class AllTest(unittest.TestCase):
         response = self.login("Michael", "python")
         self.assertIn(b"Welcome!", response.data)
 
-    def testonly_logged_in_users_can_logout(self):
+    def test_only_logged_in_users_can_logout(self):
         self.register("Marek1", "marek@rp.com", "python", "python")
         self.login("Marek1", "python")
         response = self.logout()

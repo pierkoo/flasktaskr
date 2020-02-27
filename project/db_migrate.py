@@ -9,18 +9,32 @@ from datetime import datetime
 with sqlite3.connect(DATABASE_PATH) as connection:
 
     c = connection.cursor()
-    # change the name of tasks table
-    c.execute("""ALTER TABLE tasks RENAME TO old_tasks""")
+    # # change the name of tasks table
+    # c.execute("""ALTER TABLE tasks RENAME TO old_tasks""")
+    # # create a new tasks table with updated schema
+    # db.create_all()
+    # # retrieve data from old tasks table
+    # c.execute("""SELECT name,due_date, priority, status
+    #              FROM old_tasks ORDER BY task_id ASC""")
+    # # save all rows as a list of tuples with user+id = 1
+    # data = [(row[0], row[1], row[2], row[3],
+    #          datetime.now(), 1) for row in c.fetchall()]
+    # # insert data to tasks table
+    # c.executemany("""INSERT INTO tasks ( name, due_date, priority, status,
+    #                  posted_date, user_id) VALUES (?, ?, ?, ?, ?, ?)""", data)
+    # # delete old tasks table
+    # c.execute("DROP TABLE old_tasks")
+        # change the name of tasks table
+    c.execute("""ALTER TABLE Users RENAME TO old_users""")
     # create a new tasks table with updated schema
     db.create_all()
     # retrieve data from old tasks table
-    c.execute("""SELECT name,due_date, priority, status
-                 FROM old_tasks ORDER BY task_id ASC""")
+    c.execute("""SELECT name, email, password
+                 FROM old_users ORDER BY id ASC""")
     # save all rows as a list of tuples with user+id = 1
-    data = [(row[0], row[1], row[2], row[3],
-             datetime.now(), 1) for row in c.fetchall()]
+    data = [(row[0], row[1], row[2], "user") for row in c.fetchall()]
     # insert data to tasks table
-    c.executemany("""INSERT INTO tasks ( name, due_date, priority, status,
-                     posted_date, user_id) VALUES (?, ?, ?, ?, ?, ?)""", data)
+    c.executemany("""INSERT INTO users ( name, email, password, role) VALUES (?, ?, ?, ?)""", data)
     # delete old tasks table
-    c.execute("DROP TABLE old_tasks")
+    c.execute("DROP TABLE old_users")
+

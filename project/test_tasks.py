@@ -29,6 +29,17 @@ class AllTest(unittest.TestCase):
         return self.app.get("logout/", follow_redirects=True)
 
 
+    def get_in_admin(self):
+        new_user = User(
+            name="Superadmin",
+            email="admin@admin.ad",
+            password="almighty",
+            role="admin"
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        self.login("Superadmin", "almighty")
+
     def get_in(self):
         self.register("Marek1", "marek@rp.com", "python", "python")
         self.login("Marek1", "python")
@@ -126,6 +137,28 @@ class AllTest(unittest.TestCase):
         response = self.app.get("delete/1/", follow_redirects=True)
         self.assertNotIn(b"The task was deleted.", response.data)
         self.assertIn(b"You can only delete tasks that belong to you", response.data)
+    def test_admins_can_complete_tasks_that_are_not_created_by_them(self):
+        self.get_in()
+        self.app.get('tasks/', follow_redirects=True)
+        self.create_task()
+        self.logout()
+
+        self.get_in_admin()
+        self.app.get('tasks/', follow_redirects=True)
+        response = self.app.get("complete/1/", follow_redirects=True)
+        self.assertIn(b"Task was marked as complete.", response.data)
+
+    def test_admins_can_delete_tasks_that_are_not_created_by_them(self):
+        self.get_in()
+        self.app.get('tasks/', follow_redirects=True)
+        self.create_task()
+        self.logout()
+
+        self.get_in_admin()
+        self.app.get('tasks/', follow_redirects=True)
+        response = self.app.get("delete/1/", follow_redirects=True)
+        self.assertIn(b"The task was deleted.", response.data)
+
 
     def test_task_repr(self):
         new_task = Task(
