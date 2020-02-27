@@ -109,9 +109,13 @@ def new_task():
 @login_required
 def complete(task_id):
     new_id = task_id
-    db.session.query(Task).filter_by(task_id=new_id).update({"status" : 0})
-    db.session.commit()
-    flash("Task was marked as complete.")
+    task = db.session.query(Task).filter_by(task_id=new_id)
+    if session["user_id"] == task.first().user_id:
+        task.update({"status": "0"})
+        db.session.commit()
+        flash("Task was marked as complete.")
+    else:
+        flash("You can only update tasks that belong to you")
     return redirect(url_for("tasks"))
 
 # Delete tasks
@@ -119,9 +123,13 @@ def complete(task_id):
 @login_required
 def delete_entry(task_id):
     new_id = task_id
-    db.session.query(Task).filter_by(task_id=new_id).delete()
-    db.session.commit()
-    flash("The task was deleted.")
+    task = db.session.query(Task).filter_by(task_id=new_id)
+    if session["user_id"] == task.first().user_id:
+        task.delete()
+        db.session.commit()
+        flash("The task was deleted.")
+    else:
+        flash("You can only delete tasks that belong to you")
     return redirect(url_for("tasks"))
 
 # Register new user
@@ -146,10 +154,10 @@ def register():
                 return render_template("register.html", form=form, error=error)
     return render_template("register.html", form=form, error=error)
 
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(f"Error in the {getattr(form, field).label.text} field - {error}", "error")
+# def flash_errors(form):
+#     for field, errors in form.errors.items():
+#         for error in errors:
+#             flash(f"Error in the {getattr(form, field).label.text} field - {error}", "error")
 
 def open_tasks():
     return db.session.query(Task).filter_by(
