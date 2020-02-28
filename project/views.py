@@ -28,6 +28,7 @@ from models import Task, User
 #     return sqlite3.connect(app.config["DATABASE_PATH"])
 
 def login_required(test):
+    """ Requires login to acces view """
     @wraps(test)
     def wrap(*args, **kwargs):
         if "logged_in" in session:
@@ -42,6 +43,7 @@ def login_required(test):
 @app.route("/logout/")
 @login_required
 def logout():
+    """ Logs out current user """
     session.pop("logged_in", None)
     session.pop("user_id", None)
     session.pop("role", None)
@@ -50,6 +52,7 @@ def logout():
 
 @app.route("/", methods=["GET", "POST"])
 def login():
+    """ Logs in user """
     error = None
     form = LoginForm(request.form)
     if request.method == "POST":
@@ -70,7 +73,7 @@ def login():
 @app.route("/tasks/")
 @login_required
 def tasks():
-
+    """ Renders tasks page """
     return render_template(
         "tasks.html",
         form=AddTaskForm(request.form),
@@ -82,6 +85,7 @@ def tasks():
 @app.route("/add/", methods=["POST"])
 @login_required
 def new_task():
+    """ Adds new task """
     error = None
     form = AddTaskForm(request.form)
     if request.method == "POST":
@@ -106,10 +110,11 @@ def new_task():
         closed_tasks=closed_tasks()
     )
 
-# Mark tasks as complete
+
 @app.route("/complete/<int:task_id>/")
 @login_required
 def complete(task_id):
+    """ Marks Task as completed """
     new_id = task_id
     task = db.session.query(Task).filter_by(task_id=new_id)
     if session["user_id"] == task.first().user_id or \
@@ -121,10 +126,11 @@ def complete(task_id):
         flash("You can only update tasks that belong to you")
     return redirect(url_for("tasks"))
 
-# Delete tasks
+
 @app.route("/delete/<int:task_id>/")
 @login_required
 def delete_entry(task_id):
+    """ Deletes task """
     new_id = task_id
     task = db.session.query(Task).filter_by(task_id=new_id)
     if session["user_id"] == task.first().user_id or \
@@ -136,9 +142,10 @@ def delete_entry(task_id):
         flash("You can only delete tasks that belong to you")
     return redirect(url_for("tasks"))
 
-# Register new user
+
 @app.route("/register/", methods=["GET", "POST"])
 def register():
+    """ Registers new user """
     error = None
     form = RegisterForm(request.form)
     if request.method == "POST":
@@ -158,15 +165,12 @@ def register():
                 return render_template("register.html", form=form, error=error)
     return render_template("register.html", form=form, error=error)
 
-# def flash_errors(form):
-#     for field, errors in form.errors.items():
-#         for error in errors:
-#             flash(f"Error in the {getattr(form, field).label.text} field - {error}", "error")
-
 def open_tasks():
+    """ Returns all not completed tasks """
     return db.session.query(Task).filter_by(
         status="1").order_by(Task.due_date.asc())
 
 def closed_tasks():
+    """ Returns all completed tasks """
     return db.session.query(Task).filter_by(
         status="0").order_by(Task.due_date.asc())
