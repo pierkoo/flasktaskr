@@ -28,6 +28,10 @@ class AllTest(unittest.TestCase):
     def logout(self):
         return self.app.get("logout/", follow_redirects=True)
 
+    def get_in(self):
+        self.register("Marek1", "marek@rp.com", "python", "python")
+        self.login("Marek1", "python")
+
     ############################
     #### setup and teardown ####
     ############################
@@ -93,6 +97,11 @@ class AllTest(unittest.TestCase):
                 "ppplolololo"
             )
         self.assertIn("<User pppppp>", repr(new_user))
+
+    def test_task_template_displays_logged_in_user(self):
+        self.get_in()
+        response = self.app.get("tasks/", follow_redirects=True)
+        self.assertIn(b"Marek1", response.data)
 
 if __name__ == "__main__":
     unittest.main()
