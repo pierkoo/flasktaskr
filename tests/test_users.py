@@ -28,9 +28,29 @@ class AllTest(unittest.TestCase):
     def logout(self):
         return self.app.get("logout/", follow_redirects=True)
 
-    def get_in(self):
-        self.register("Marek1", "marek@rp.com", "python", "python")
-        self.login("Marek1", "python")
+    def get_in(self, name):
+        self.register(name, "marek@rp.com", "python", "python")
+        self.login(name, "python")
+
+    def get_in_admin(self):
+        new_user = User(
+            name="Superadmin",
+            email="admin@admin.ad",
+            password="almighty",
+            role="admin"
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        self.login("Superadmin", "almighty")
+
+    def create_task(self):
+        return self.app.post("add/", data=dict(
+            name="Test task",
+            due_date="10/08/2020",
+            priority="1",
+            posted_date="09/10/2020",
+            status="1"
+            ), follow_redirects=True)
 
     ############################
     #### setup and teardown ####
@@ -99,9 +119,47 @@ class AllTest(unittest.TestCase):
         self.assertIn("<User pppppp>", repr(new_user))
 
     def test_task_template_displays_logged_in_user(self):
-        self.get_in()
+        self.get_in("Marek1")
         response = self.app.get("tasks/", follow_redirects=True)
         self.assertIn(b"Marek1", response.data)
+
+    def test_users_cannot_see_task_modify_links_for_tasks_not_created_by_them(self):
+        self.get_in("Marek1")
+        self.app.get("tasks/", follow_redirects=True)
+        self.create_task()
+        self.logout()
+
+        self.get_in("Marek2")
+        response = self.app.get("tasks/", follow_redirects=True)
+        self.assertNotIn(b"complete/1/", response.data)
+        self.assertNotIn(b"delete/1/", response.data)
+
+    def test_users_can_see_task_modify_links_for_tasks_created_by_them(self):
+        self.get_in("Marek1")
+        self.app.get("tasks/", follow_redirects=True)
+        self.create_task()
+        self.logout()
+
+        self.get_in("Marek1")
+        self.create_task()
+        response = self.app.get("tasks/", follow_redirects=True)
+        self.assertIn(b"complete/1/", response.data)
+        self.assertIn(b"delete/1/", response.data)
+
+    def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
+        self.get_in("Marek1")
+        self.app.get("tasks/", follow_redirects=True)
+        self.create_task()
+        self.logout()
+
+        self.get_in_admin()
+        self.create_task()
+        response = self.app.get("tasks/", follow_redirects=True)
+        self.assertIn(b"complete/1/", response.data)
+        self.assertIn(b"delete/1/", response.data)
+        self.assertIn(b"complete/2/", response.data)
+        self.assertIn(b"delete/2/", response.data)
+
 
 if __name__ == "__main__":
     unittest.main()
