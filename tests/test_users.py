@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 from project._config import basedir
 from project.models import User, Task
 import datetime
@@ -36,7 +36,7 @@ class AllTest(unittest.TestCase):
         new_user = User(
             name="Superadmin",
             email="admin@admin.ad",
-            password="almighty",
+            password=bcrypt.generate_password_hash("almighty"),
             role="admin"
         )
         db.session.add(new_user)
