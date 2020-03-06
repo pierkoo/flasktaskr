@@ -5,5 +5,7 @@
 3. Once signed in, users can add new tasks (each task consists of a name, due date,
 priority, status, and a unique ID)
 4. Users can view all incomplete tasks from the same page
-5. Users can also delete tasks and mark tasks as complete (deleted tasks will be
-removed from the database)
+5. Users can also delete tasks and mark tasks as complete (deleted tasks will be removed from the database)
+
+### Learning project from Real Python Course Part 2 
+
