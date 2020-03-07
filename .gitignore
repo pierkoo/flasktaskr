@@ -8,3 +8,4 @@ project/.coverage
 project/htmlcov
 .coverage
 htmlcov
+error.log
