@@ -27,10 +27,19 @@ def login_required(test):
     @wraps(test)
     def wrap(*args, **kwargs):
         if "logged_in" in session:
-            return test(*args, **kwargs)
+            return  test(*args, **kwargs)
         else:
             flash("You need to login first.")
             return redirect(url_for("users.login"))
+    return wrap
+
+def already_logged(test):
+    @wraps(test)
+    def wrap(*args, **kwargs):
+        if "logged_in" in session:
+            return redirect(url_for("tasks.tasks"))
+        else:
+            return test(*args, **kwargs)
     return wrap
 
 
@@ -50,6 +59,7 @@ def logout():
 
 
 @users_blueprint.route("/", methods=["GET", "POST"])
+@already_logged
 def login():
     error = None
     form = LoginForm(request.form)
@@ -69,6 +79,7 @@ def login():
 
 
 @users_blueprint.route("/register/", methods=["GET", "POST"])
+@already_logged
 def register():
     error = None
     form = RegisterForm(request.form)
